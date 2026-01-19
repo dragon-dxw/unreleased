@@ -26,13 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
         div.id = `card-${repoName.replace('/', '-')}`;
         div.innerHTML = `
             <div class="repo-header">
+                <div class="stat-value" id="count-${repoName.replace('/', '-')}">-</div>
                 <a href="https://github.com/${repoName}" target="_blank" class="repo-name">${repoName}</a>
+                <div class="release-info" id="release-${repoName.replace('/', '-')}">Loading release info...</div>
                 <button class="delete-btn" onclick="removeRepo('${repoName}')">×</button>
             </div>
-            <div class="release-info" id="release-${repoName.replace('/', '-')}">Loading release info...</div>
             <div class="stat-group">
-                <div class="stat-label">Merged Non-Bot PRs</div>
-                <div class="stat-value" id="count-${repoName.replace('/', '-')}">-</div>
                 <div id="pr-list-${repoName.replace('/', '-')}" class="pr-list-container"></div>
             </div>
         `;
@@ -124,7 +123,7 @@ async function fetchRepoData(repoName, forceRefresh = false) {
         const tagName = releaseData.tag_name;
 
         const dateObj = new Date(publishedAt);
-        const releaseHtml = `Since <a href="${releaseData.html_url}" target="_blank">${tagName}</a> (${dateObj.toLocaleDateString()})`;
+        const releaseHtml = `<a href="${releaseData.html_url}" target="_blank">${tagName}</a> (${dateObj.toLocaleDateString()})`;
 
         // 2. Search for PRs
         // Query: repo:owner/name is:pr is:closed is:unmerged closed:>YYYY-MM-DDTHH:MM:SSZ

@@ -144,12 +144,6 @@ button:hover {
     background: none;
 }
 
-.stat-group {
-    margin-top: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border);
-}
-
 .stat-label {
     font-size: 0.875rem;
     color: var(--text-secondary);
@@ -166,6 +160,12 @@ button:hover {
     font-size: 0.875rem;
     color: var(--text-secondary);
     margin-bottom: 0.5rem;
+    float: right;
+}
+
+
+.release-info a {
+    color: var(--accent);
 }
 
 .vibecoded-warning {
