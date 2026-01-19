@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -20,6 +22,9 @@
             <div class="input-group">
                 <input type="text" id="repoInput" placeholder="owner/repo (e.g., facebook/react)" />
                 <button id="addRepoBtn">Add Repository</button>
+                <button id="refreshBtn"
+                    style="background-color: var(--card-bg); border: 1px solid var(--border); color: var(--text-primary);">Refresh
+                    All</button>
             </div>
         </section>
 
@@ -31,4 +36,5 @@
     </div>
     <script src="app.js"></script>
 </body>
+
 </html>

@@ -64,22 +64,55 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Enter') addRepo();
     });
 
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    refreshBtn.addEventListener('click', () => {
+        console.log('Refreshing all...');
+        repos.forEach(repo => fetchRepoData(repo, true));
+    });
+
     // Initial render
     renderRepos();
 });
 
-async function fetchRepoData(repoName) {
+async function fetchRepoData(repoName, forceRefresh = false) {
     const cardId = repoName.replace('/', '-');
     const releaseEl = document.getElementById(`release-${cardId}`);
     const countEl = document.getElementById(`count-${cardId}`);
+    const CACHE_KEY = `cache-${repoName}`;
+    const CACHE_DURATION = 60 * 60 * 1000; // 1 hour
+
+    // 0. Check Cache (skip if forceRefresh is true)
+    if (!forceRefresh) {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+            try {
+                const { timestamp, data } = JSON.parse(cached);
+                if (Date.now() - timestamp < CACHE_DURATION) {
+                    console.log(`Using cached data for ${repoName}`);
+                    updateCard(repoName, data.releaseHtml, data.countHtml);
+                    return;
+                }
+            } catch (e) {
+                console.warn('Cache parse error', e);
+            }
+        }
+    } else {
+        console.log(`Force refreshing ${repoName}...`);
+        if (releaseEl) releaseEl.textContent = 'Refreshing...';
+        if (countEl) countEl.textContent = '-';
+    }
 
     try {
         // 1. Fetch latest release
         const releaseRes = await fetch(`https://api.github.com/repos/${repoName}/releases/latest`);
 
         if (releaseRes.status === 404) {
-            releaseEl.textContent = 'No releases found';
-            countEl.textContent = 'N/A';
+            const noReleaseHtml = 'No releases found';
+            const noCountHtml = 'N/A';
+            updateCard(repoName, noReleaseHtml, noCountHtml);
+            // Cache "no data" states as well to allow cooling off
+            saveToCache(CACHE_KEY, { releaseHtml: noReleaseHtml, countHtml: noCountHtml });
             return;
         }
 
@@ -90,7 +123,7 @@ async function fetchRepoData(repoName) {
         const tagName = releaseData.tag_name;
 
         const dateObj = new Date(publishedAt);
-        releaseEl.innerHTML = `Since <a href="${releaseData.html_url}" target="_blank">${tagName}</a> (${dateObj.toLocaleDateString()})`;
+        const releaseHtml = `Since <a href="${releaseData.html_url}" target="_blank">${tagName}</a> (${dateObj.toLocaleDateString()})`;
 
         // 2. Search for PRs
         // Query: repo:owner/name is:pr is:closed is:unmerged closed:>YYYY-MM-DDTHH:MM:SSZ
@@ -106,35 +139,29 @@ async function fetchRepoData(repoName) {
         const searchData = await searchRes.json();
 
         // 3. Filter out bots
-        // We need to check if user.type === 'Bot'
-        // searchData.items contains the PRs
-
         let nonBotCount = 0;
-        let botCount = 0;
-
-        // Note: Search API returns up to 100 items per page. 
-        // For a dashboard, we might stop at 100 or need pagination if there are huge numbers.
-        // For MVP, we'll verify the first page.
 
         for (const pr of searchData.items) {
-            // Additional check to ensure it's not a bot
-            // user.type is usually available in the search result item
             if (pr.user.type !== 'Bot' && !pr.user.login.endsWith('[bot]')) {
                 nonBotCount++;
-            } else {
-                botCount++;
             }
         }
+
+        // 4. Prepare display HTML
+        let countHtml = nonBotCount;
 
         // "Close-enough" search: repo specific, closed, unmerged, after date
         // Note: We can't easily filter "non-bot" in the search string generically, so this link might show bots.
         const webQuery = `is:pr is:closed is:unmerged closed:>${publishedAt}`;
         const webUrl = `https://github.com/${repoName}/pulls?q=${encodeURIComponent(webQuery)}`;
 
-        countEl.innerHTML = `<a href="${webUrl}" target="_blank" style="color: inherit; text-decoration: underline;">${nonBotCount}</a>`;
+        countHtml = `<a href="${webUrl}" target="_blank" style="color: inherit; text-decoration: underline;">${nonBotCount}</a>`;
         if (searchData.total_count > 100) {
-            countEl.innerHTML += '+';
+            countHtml += '+';
         }
+
+        updateCard(repoName, releaseHtml, countHtml);
+        saveToCache(CACHE_KEY, { releaseHtml, countHtml });
 
     } catch (err) {
         console.error(err);
@@ -146,4 +173,19 @@ async function fetchRepoData(repoName) {
             releaseEl.textContent = 'Error: Rate limit exceeded (60/hr). Try again later.';
         }
     }
+}
+
+function updateCard(repoName, releaseHtml, countHtml) {
+    const cardId = repoName.replace('/', '-');
+    const releaseEl = document.getElementById(`release-${cardId}`);
+    const countEl = document.getElementById(`count-${cardId}`);
+    if (releaseEl) releaseEl.innerHTML = releaseHtml;
+    if (countEl) countEl.innerHTML = countHtml;
+}
+
+function saveToCache(key, data) {
+    localStorage.setItem(key, JSON.stringify({
+        timestamp: Date.now(),
+        data
+    }));
 }
