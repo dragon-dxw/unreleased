@@ -98,7 +98,10 @@ async function fetchRepoData(repoName) {
         const searchUrl = `https://api.github.com/search/issues?q=${encodeURIComponent(q)}&per_page=100`;
 
         const searchRes = await fetch(searchUrl);
-        if (!searchRes.ok) throw new Error('Search failed');
+        if (!searchRes.ok) {
+            const errData = await searchRes.json().catch(() => ({}));
+            throw new Error(`Search failed: ${errData.message || searchRes.statusText}`);
+        }
 
         const searchData = await searchRes.json();
 
@@ -135,12 +138,12 @@ async function fetchRepoData(repoName) {
 
     } catch (err) {
         console.error(err);
-        releaseEl.textContent = 'Error fetching data';
+        releaseEl.textContent = `Error: ${err.message}`;
         countEl.textContent = '-';
 
         // Check for rate limit
-        if (err.message.includes('rate limit') || err.message.includes('403')) {
-            releaseEl.textContent = 'Rate limit exceeded';
+        if (err.message.toLocaleLowerCase().includes('rate limit') || err.message.includes('403')) {
+            releaseEl.textContent = 'Error: Rate limit exceeded (60/hr). Try again later.';
         }
     }
 }
