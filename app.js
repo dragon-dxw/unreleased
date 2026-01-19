@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="stat-group">
                 <div class="stat-label">Unmerged Non-Bot Closed PRs</div>
                 <div class="stat-value" id="count-${repoName.replace('/', '-')}">-</div>
+                <div id="pr-list-${repoName.replace('/', '-')}" class="pr-list-container"></div>
             </div>
         `;
         return div;
@@ -90,7 +91,7 @@ async function fetchRepoData(repoName, forceRefresh = false) {
                 const { timestamp, data } = JSON.parse(cached);
                 if (Date.now() - timestamp < CACHE_DURATION) {
                     console.log(`Using cached data for ${repoName}`);
-                    updateCard(repoName, data.releaseHtml, data.countHtml);
+                    updateCard(repoName, data.releaseHtml, data.countHtml, data.prs);
                     return;
                 }
             } catch (e) {
@@ -140,10 +141,17 @@ async function fetchRepoData(repoName, forceRefresh = false) {
 
         // 3. Filter out bots
         let nonBotCount = 0;
+        const relevantPRs = [];
 
         for (const pr of searchData.items) {
             if (pr.user.type !== 'Bot' && !pr.user.login.endsWith('[bot]')) {
                 nonBotCount++;
+                relevantPRs.push({
+                    title: pr.title,
+                    url: pr.html_url,
+                    user: pr.user.login,
+                    number: pr.number
+                });
             }
         }
 
@@ -160,8 +168,8 @@ async function fetchRepoData(repoName, forceRefresh = false) {
             countHtml += '+';
         }
 
-        updateCard(repoName, releaseHtml, countHtml);
-        saveToCache(CACHE_KEY, { releaseHtml, countHtml });
+        updateCard(repoName, releaseHtml, countHtml, relevantPRs);
+        saveToCache(CACHE_KEY, { releaseHtml, countHtml, prs: relevantPRs });
 
     } catch (err) {
         console.error(err);
@@ -175,12 +183,39 @@ async function fetchRepoData(repoName, forceRefresh = false) {
     }
 }
 
-function updateCard(repoName, releaseHtml, countHtml) {
+function updateCard(repoName, releaseHtml, countHtml, prs = []) {
     const cardId = repoName.replace('/', '-');
     const releaseEl = document.getElementById(`release-${cardId}`);
     const countEl = document.getElementById(`count-${cardId}`);
+    const prListEl = document.getElementById(`pr-list-${cardId}`);
+
     if (releaseEl) releaseEl.innerHTML = releaseHtml;
     if (countEl) countEl.innerHTML = countHtml;
+
+    if (prListEl) {
+        if (prs && prs.length > 0) {
+            const listItems = prs.map(pr => `
+                <li class="pr-item">
+                    <a href="${pr.url}" target="_blank" class="pr-link">
+                        ${pr.title} #${pr.number}
+                        <br>
+                        <span class="pr-user">by ${pr.user}</span>
+                    </a>
+                </li>
+            `).join('');
+
+            prListEl.innerHTML = `
+                <details class="pr-details">
+                    <summary>View ${prs.length} PRs</summary>
+                    <ul class="pr-list">
+                        ${listItems}
+                    </ul>
+                </details>
+            `;
+        } else {
+            prListEl.innerHTML = '';
+        }
+    }
 }
 
 function saveToCache(key, data) {
