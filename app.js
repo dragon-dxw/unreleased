@@ -197,8 +197,7 @@ function updateCard(repoName, releaseHtml, countHtml, prs = []) {
             const listItems = prs.map(pr => `
                 <li class="pr-item">
                     <a href="${pr.url}" target="_blank" class="pr-link">
-                        ${pr.title} #${pr.number}
-                        <br>
+                        <span class="pr-title">${pr.title} #${pr.number}</span>
                         <span class="pr-user">by ${pr.user}</span>
                     </a>
                 </li>

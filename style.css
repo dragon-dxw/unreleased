@@ -92,9 +92,11 @@ button:hover {
 }
 
 .repo-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    display: flex;
+    flex-direction: column;
     gap: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .repo-card {
@@ -216,13 +218,16 @@ button:hover {
 }
 
 .pr-link {
-    display: block;
-    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.5rem 1rem;
     color: var(--text-primary);
     text-decoration: none;
     font-size: 0.875rem;
     transition: background-color 0.2s;
     line-height: 1.4;
+    gap: 1rem;
 }
 
 .pr-link:hover {
@@ -230,9 +235,16 @@ button:hover {
     color: var(--accent);
 }
 
+.pr-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
 .pr-user {
-    display: inline-block;
     font-size: 0.75rem;
     color: var(--text-secondary);
-    margin-top: 0.25rem;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
