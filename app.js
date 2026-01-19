@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="release-info" id="release-${repoName.replace('/', '-')}">Loading release info...</div>
             <div class="stat-group">
-                <div class="stat-label">Unmerged Non-Bot Closed PRs</div>
+                <div class="stat-label">Merged Non-Bot PRs</div>
                 <div class="stat-value" id="count-${repoName.replace('/', '-')}">-</div>
                 <div id="pr-list-${repoName.replace('/', '-')}" class="pr-list-container"></div>
             </div>
@@ -128,7 +128,7 @@ async function fetchRepoData(repoName, forceRefresh = false) {
 
         // 2. Search for PRs
         // Query: repo:owner/name is:pr is:closed is:unmerged closed:>YYYY-MM-DDTHH:MM:SSZ
-        const q = `repo:${repoName} is:pr is:closed is:unmerged closed:>${publishedAt}`;
+        const q = `repo:${repoName} is:pr is:merged closed:>${publishedAt}`;
         const searchUrl = `https://api.github.com/search/issues?q=${encodeURIComponent(q)}&per_page=100`;
 
         const searchRes = await fetch(searchUrl);
@@ -160,7 +160,7 @@ async function fetchRepoData(repoName, forceRefresh = false) {
 
         // "Close-enough" search: repo specific, closed, unmerged, after date
         // Note: We can't easily filter "non-bot" in the search string generically, so this link might show bots.
-        const webQuery = `is:pr is:closed is:unmerged closed:>${publishedAt}`;
+        const webQuery = `is:pr is:merged closed:>${publishedAt}`;
         const webUrl = `https://github.com/${repoName}/pulls?q=${encodeURIComponent(webQuery)}`;
 
         countHtml = `<a href="${webUrl}" target="_blank" style="color: inherit; text-decoration: underline;">${nonBotCount}</a>`;
