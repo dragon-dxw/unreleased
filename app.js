@@ -10,6 +10,29 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('dashboardRepos', JSON.stringify(repos));
     };
 
+    // Check URL for repos
+    const urlParams = new URLSearchParams(window.location.search);
+    const reposParam = urlParams.get('repos');
+
+    if (reposParam) {
+        let addednew = false;
+        const newRepos = reposParam.split(',');
+        newRepos.forEach(r => {
+            const cleanRepo = r.trim();
+            if (cleanRepo && !repos.includes(cleanRepo) && cleanRepo.includes('/')) {
+                repos.push(cleanRepo);
+                addednew = true;
+            }
+        });
+
+        if (addednew) {
+            saveRepos();
+            // Clean URL
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.history.replaceState({ path: newUrl }, '', newUrl);
+        }
+    }
+
     const renderRepos = () => {
         repoGrid.innerHTML = '';
         repos.forEach(repo => {
