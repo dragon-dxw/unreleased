@@ -26,10 +26,14 @@ document.addEventListener('DOMContentLoaded', () => {
         div.id = `card-${repoName.replace('/', '-')}`;
         div.innerHTML = `
             <div class="repo-header">
-                <div class="stat-value" id="count-${repoName.replace('/', '-')}">-</div>
-                <a href="https://github.com/${repoName}" target="_blank" class="repo-name">${repoName}</a>
-                <div class="release-info" id="release-${repoName.replace('/', '-')}">Loading release info...</div>
-                <button class="delete-btn" onclick="removeRepo('${repoName}')">×</button>
+                <div class="repo-left">
+                    <div class="stat-value" id="count-${repoName.replace('/', '-')}">-</div>
+                    <a href="https://github.com/${repoName}" target="_blank" class="repo-name">${repoName}</a>
+                </div>
+                <div class="repo-right">
+                    <div class="release-info" id="release-${repoName.replace('/', '-')}">Loading release info...</div>
+                    <button class="delete-btn" onclick="removeRepo('${repoName}')">×</button>
+                </div>
             </div>
             <div class="stat-group">
                 <div id="pr-list-${repoName.replace('/', '-')}" class="pr-list-container"></div>

@@ -115,8 +115,20 @@ button:hover {
 .repo-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.repo-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.repo-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
 }
 
 .repo-name {
@@ -159,8 +171,9 @@ button:hover {
 .release-info {
     font-size: 0.875rem;
     color: var(--text-secondary);
-    margin-bottom: 0.5rem;
-    float: right;
+    margin: 0;
+    /* Remove bottom margin */
+    /* Removed float: right as we are using flex now */
 }
 
 
