@@ -165,3 +165,10 @@ button:hover {
     color: var(--text-secondary);
     margin-bottom: 0.5rem;
 }
+
+.vibecoded-warning {
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    color: var(--text-secondary);
+    opacity: 0.8;
+}
