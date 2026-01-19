@@ -186,7 +186,7 @@ async function fetchRepoData(repoName, forceRefresh = false) {
 
         // "Close-enough" search: repo specific, closed, unmerged, after date
         // Note: We can't easily filter "non-bot" in the search string generically, so this link might show bots.
-        const webQuery = `is:pr is:merged closed:>${publishedAt}`;
+        const webQuery = `is:pr is:merged closed:>${publishedAt} -author:app/dependabot -author:app/renovate -author:app/github-actions`;
         const webUrl = `https://github.com/${repoName}/pulls?q=${encodeURIComponent(webQuery)}`;
 
         countHtml = `<a href="${webUrl}" target="_blank" style="color: inherit; text-decoration: underline;">${nonBotCount}</a>`;
