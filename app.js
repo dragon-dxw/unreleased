@@ -123,9 +123,18 @@ async function fetchRepoData(repoName) {
             }
         }
 
-        countEl.textContent = nonBotCount;
-        if (searchData.total_count > 100) {
-            countEl.textContent += '+'; // Indicate there are more
+        if (nonBotCount > 0) {
+            // "Close-enough" search: repo specific, closed, unmerged, after date
+            // Note: We can't easily filter "non-bot" in the search string generically, so this link might show bots.
+            const webQuery = `is:pr is:closed is:unmerged closed:>${publishedAt}`;
+            const webUrl = `https://github.com/${repoName}/pulls?q=${encodeURIComponent(webQuery)}`;
+
+            countEl.innerHTML = `<a href="${webUrl}" target="_blank" style="color: inherit; text-decoration: underline;">${nonBotCount}</a>`;
+            if (searchData.total_count > 100) {
+                countEl.innerHTML += '+';
+            }
+        } else {
+            countEl.textContent = nonBotCount;
         }
 
     } catch (err) {
