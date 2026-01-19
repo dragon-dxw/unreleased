@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub PR Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>GitHub Release Tracker</h1>
+            <p>Track unmerged, non-bot closed PRs since the last release.</p>
+        </header>
+
+        <section class="controls">
+            <div class="input-group">
+                <input type="text" id="repoInput" placeholder="owner/repo (e.g., facebook/react)" />
+                <button id="addRepoBtn">Add Repository</button>
+            </div>
+        </section>
+
+        <main id="dashboard">
+            <div class="repo-grid" id="repoGrid">
+                <!-- Repo cards will go here -->
+            </div>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
